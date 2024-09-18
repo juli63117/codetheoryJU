@@ -104,6 +104,7 @@ print("G*:\n", G_star)
 # 2 Step
 row = 0
 lead = []
+# Фиксация ведущих столбцов
 for col in range(n):
     for r in range(row, k):
         if G_star[r, col] != 0:
@@ -143,6 +144,7 @@ def generate_code(S):
     for word in S:
         code.add(word)
 
+    # Сложение всех слов, оставление неповторяющихся + проверка размерности
     for i in range(len(S)):
         for j in range(len(S)):
             word = bin(int(S[i], 2) + int(S[j], 2))[2:].zfill(4)
@@ -165,14 +167,11 @@ print("v@H = ", (v@H)%2)
 # 1.5
 def d(G):
     d = len(G[0])
-    for i in range(0, len(G) - 1):
-        for k in range(i + 1, len(G)):
-            a = 0
-            for j in range(0, len(G[0])):
-                if G[i][j] != G[k][j]:
-                    a += 1
-            if d > a:
-                d = a
+    # Используется broadcasting для сравнения всех пар кодовых слов одновременно
+    for i in range(len(G)):
+        for j in range(i + 1, len(G)):
+            diff = np.sum(G[i] != G[j])
+            d = min(d, diff)
     return d
 
 d = d(G)
@@ -184,15 +183,14 @@ print("t =", t)
 e1 = [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 print(f'\nv = {v}\nv+e1 = {(v+e1)%2}\n(v+e1)@H = {((v+e1)@H)%2}\n ..::ERROR::..')
 
-# 1.5.2 
-import numpy as np
-
+# 1.5.2
 def find_error_vector():
     for i in range(len(v)):
         for j in range(i + 1, len(v)):
             error_vector = np.zeros_like(v, dtype=int)
             error_vector[i] = 1
             error_vector[j] = 1
+            # Проверка, что вектор не образует ошибку
             ve2 = (v + error_vector) % 2
             ve2H = np.dot(ve2, H) % 2
             if np.all(ve2H == 0):
